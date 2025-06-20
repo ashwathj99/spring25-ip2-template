@@ -34,6 +34,7 @@ const useAuth = (authType: 'login' | 'signup') => {
    */
   const togglePasswordVisibility = () => {
     // TODO - Task 1: Toggle password visibility
+    setShowPassword((prev) => !prev);
   };
 
   /**
@@ -47,6 +48,21 @@ const useAuth = (authType: 'login' | 'signup') => {
     field: 'username' | 'password' | 'confirmPassword',
   ) => {
     // TODO - Task 1: Handle input changes for the fields
+    const value = e.target.value;
+    switch (field) {
+      case 'username':
+        setUsername(value);
+        break;
+      case 'password':
+        setPassword(value);
+        break;
+      case 'confirmPassword':
+        setPasswordConfirmation(value);
+        break;
+      default:
+        throw new Error('Invalid field type');
+    }
+    setErr('');
   };
 
   /**
@@ -58,6 +74,16 @@ const useAuth = (authType: 'login' | 'signup') => {
   const validateInputs = (): boolean => {
     // TODO - Task 1: Validate inputs for login and signup forms
     // Display any errors to the user
+    if (!username || !password) {
+      setErr('Username and password are required.');
+      return false;
+    }
+    if (authType === 'signup' && password !== passwordConfirmation) {
+      setErr('Passwords do not match.');
+      return false;
+    }
+    setErr('');
+    return true;
   };
 
   /**
@@ -70,18 +96,29 @@ const useAuth = (authType: 'login' | 'signup') => {
     event.preventDefault();
 
     // TODO - Task 1: Validate inputs
-
+    if (!validateInputs()) {
+      return; // Validation failed
+    }
     let user: User;
 
     try {
       // TODO - Task 1: Handle the form submission, calling appropriate API routes
       // based on the auth type
-
+      if (authType === 'login') {
+        user = await loginUser({ username, password });
+      } else {
+        user = await createUser({ username, password });
+      }
       // Redirect to home page on successful login/signup
       setUser(user);
       navigate('/home');
     } catch (error) {
       // TODO - Task 1: Display error message
+      if (error instanceof Error) {
+        setErr(error.message);
+      } else {
+        setErr('Unexpected error occurred. Please try again!');
+      }
     }
   };
 

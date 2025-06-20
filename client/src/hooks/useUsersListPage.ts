@@ -38,6 +38,7 @@ const useUsersListPage = () => {
      */
     const removeUserFromList = (prevUserList: User[], user: User) => {
       // TODO: Task 1 - Implement the function to remove a user from the list
+      return prevUserList.filter((u) => u.username !== user.username);
     };
 
     /**
@@ -49,6 +50,14 @@ const useUsersListPage = () => {
     const addUserToList = (prevUserList: User[], user: User) => {
       // TODO: Task 1 - Implement the function to add or update a user in the list
       // Add the user to the front of the list if it doesn't already exist
+      const existingUserIndex = prevUserList.findIndex((u) => u.username === user.username);
+      if (existingUserIndex === -1) {
+        return [user, ...prevUserList];
+      }
+      // If the user exists, update the existing user
+      const updatedUserList = [...prevUserList];
+      updatedUserList[existingUserIndex] = user;
+      return updatedUserList;
     };
 
     /**
@@ -58,6 +67,15 @@ const useUsersListPage = () => {
      */
     const handleModifiedUserUpdate = (userUpdate: UserUpdatePayload) => {
       // TODO: Task 1 - Update the user list based on the user update type.
+      setUserList((prevUserList) => {
+        if (userUpdate.type === 'deleted') {
+          return removeUserFromList(prevUserList, userUpdate.user);
+          // TODO: review updated required case
+        } else if (userUpdate.type === 'updated' || userUpdate.type === 'created') {
+          return addUserToList(prevUserList, userUpdate.user);
+        }
+        return prevUserList; 
+      });
     };
 
     fetchData();
@@ -70,8 +88,12 @@ const useUsersListPage = () => {
   }, [socket]);
 
   // TODO: Task 1 - Filter the user list based on the userFilter value
-  const filteredUserlist = [];
-  return { userList: filteredUserlist, setUserFilter };
+  const filteredUserList = userList.filter((user) =>
+    user.username.toLowerCase().includes(userFilter.toLowerCase())
+  );
+
+  return { userList: filteredUserList, setUserFilter };
+
 };
 
 export default useUsersListPage;

@@ -196,7 +196,7 @@ export interface ChatUpdatePayload {
  */
 export interface UserUpdatePayload {
   user: User;
-  type: 'created' | 'deleted';
+  type: 'created' | 'deleted' | 'updated';
 }
 
 /**
@@ -290,8 +290,6 @@ export interface Chat {
   _id?: string;
   participants: string[]; // array of user IDs
   messages: MessageInChat[]; // array of messages, each with user details
-  createdAt?: Date; // set by Mongoose if timestamps: true
-  updatedAt?: Date; // set by Mongoose if timestamps: true
 }
 
 /**

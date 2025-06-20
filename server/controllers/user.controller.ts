@@ -127,6 +127,21 @@ const userController = (socket: FakeSOSocket) => {
    */
   const getUsers = async (_: Request, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the getUsers endpoint
+    try {
+      const users = await getUsersList();
+
+      if ('error' in users) {
+        if (users.error === 'No users found') {
+          res.status(404).send(users.error);
+          return;
+        }
+        throw Error(users.error);
+      }
+
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(500).send(`Error when getting users: ${error}`);
+    }
   };
 
   /**
@@ -189,7 +204,14 @@ const userController = (socket: FakeSOSocket) => {
   const updateBiography = async (req: UpdateBiographyRequest, res: Response): Promise<void> => {
     try {
       // TODO: Task 1 - Implement the updateBiography function, including request validation
-
+      if (!req.body || !req.body.username || !req.body.biography) {
+        res.status(400).send('Invalid user body');
+        return;
+      }
+      const updatedUser = await updateUser(req.body.username, { biography: req.body.biography });
+      if ('error' in updatedUser) {
+        throw Error(updatedUser.error);
+      }
       // Emit socket event for real-time updates
       socket.emit('userUpdate', {
         user: updatedUser,
@@ -197,8 +219,10 @@ const userController = (socket: FakeSOSocket) => {
       });
 
       // TODO: Task 1 - Return the updated user object
+      res.status(200).json(updatedUser);
     } catch (error) {
       // TODO: Task 1 - Handle errors appropriately
+      res.status(500).send(`Error when updating user biography: ${error}`);
     }
   };
 
@@ -208,6 +232,8 @@ const userController = (socket: FakeSOSocket) => {
   router.patch('/resetPassword', resetPassword);
   router.get('/getUser/:username', getUser);
   router.delete('/deleteUser/:username', deleteUser);
+  router.patch('/updateBiography', updateBiography);
+  router.get('/getUsers', getUsers);
 
   // TODO: Task 1- Add a route for updating a user's biography
   // TODO: Task 1 - Add a route for getting all users
