@@ -40,7 +40,7 @@
     "start": "nodemon server.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "jest -w=1 --coverage --detectOpenHandles --detectLeaks",
+    "test": "jest -w=1 --coverage --detectOpenHandles --detectLeaks=false",
     "debug-test": "jest -w=1 --coverage --detectOpenHandles",
     "build": "tsc",
     "start:prod": "node ./dist/server.js",

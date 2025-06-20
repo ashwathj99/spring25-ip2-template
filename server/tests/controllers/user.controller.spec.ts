@@ -4,6 +4,8 @@ import { app } from '../../app';
 import * as util from '../../services/user.service';
 import { SafeUser, User } from '../../types/types';
 
+const mockUserNotFoundMessage = 'No users found';
+
 const mockUser: User = {
   _id: new mongoose.Types.ObjectId(),
   username: 'user1',
@@ -21,6 +23,10 @@ const mockUserJSONResponse = {
   _id: mockUser._id?.toString(),
   username: 'user1',
   dateJoined: new Date('2024-12-03').toISOString(),
+};
+
+const mockUserNotFoundResponse = {
+  error: mockUserNotFoundMessage,
 };
 
 const saveUserSpy = jest.spyOn(util, 'saveUser');
@@ -299,6 +305,22 @@ describe('Test userController', () => {
     });
 
     // TODO: Task 1 - Add more tests
+    it('should return 404 if user not found', async () => {
+      getUsersListSpy.mockResolvedValueOnce(mockUserNotFoundResponse);
+
+      const response = await supertest(app).get(`/user/getUsers`);
+
+      expect(response.status).toBe(404);
+      expect(response.text).toEqual(mockUserNotFoundMessage);
+    });
+
+    it('should return 500 if database error while fetching users', async () => {
+      getUsersListSpy.mockResolvedValueOnce({ error: 'Error retrieving users' });
+
+      const response = await supertest(app).get(`/user/getUsers`);
+
+      expect(response.status).toBe(500);
+    });
   });
 
   describe('DELETE /deleteUser', () => {
@@ -349,5 +371,28 @@ describe('Test userController', () => {
     });
 
     // TODO: Task 1 - Add more tests
+    it('should return 400 for request missing username', async () => {
+      const mockReqBody = {
+        biography: 'This is my new bio',
+      };
+
+      const response = await supertest(app).patch('/user/updateBiography').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid user body');
+    });
+
+    it('should return 500 for a database error while updating biography', async () => {
+      const mockReqBody = {
+        username: mockUser.username,
+        biography: 'new test bio',
+      };
+
+      updatedUserSpy.mockResolvedValueOnce({ error: 'Error updating user biography' });
+
+      const response = await supertest(app).patch('/user/updateBiography').send(mockReqBody);
+
+      expect(response.status).toBe(500);
+    });
   });
 });
