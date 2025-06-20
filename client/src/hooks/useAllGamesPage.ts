@@ -21,10 +21,26 @@ const useAllGamesPage = () => {
 
   const fetchGames = async () => {
     // TODO: Task 2 - Fetch and update the list of available games state
+    try {
+      const games = await getGames(undefined, undefined);
+      if (games && games.length > 0) {
+        setAvailableGames(games);
+      } else {
+        console.error('No games available at the moment!');
+      }
+    } catch (error) {
+      console.error('Error fetching games:', error);
+    }
   };
 
   const handleCreateGame = async (gameType: GameType) => {
     // TODO: Task 2 - Create a new game with the provided type
+    try {
+      const gameID = await createGame(gameType);
+      handleJoin(gameID);
+    } catch (error) {
+      console.error('Error creating game:', error);
+    }
     fetchGames(); // Refresh the list after creating a game
   };
 
@@ -36,10 +52,13 @@ const useAllGamesPage = () => {
 
   const handleToggleModal = () => {
     // TODO: Task 2 - Toggle the visibility of the game creation modal
+    setIsModalOpen((prev) => !prev);
   };
 
   const handleSelectGameType = (gameType: GameType) => {
     // TODO: Task 2 - Create a new game with the selected game type and toggle the modal
+    handleCreateGame(gameType);
+    handleToggleModal();
   };
 
   return {

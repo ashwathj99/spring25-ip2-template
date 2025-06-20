@@ -20,12 +20,35 @@ const useGamePage = () => {
   // - `gameState` to store the current game state or null if no game is joined.
   // - `joinedGameID` to store the ID of the joined game.
   // - `error` to display any error messages related to the game, or null if no error message.
+  const [gameState, setGameState] = useState<GameInstance | null>(null);
+  const [joinedGameID, setJoinedGameID] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLeaveGame = async () => {
     // TODO: Task 2 - Implement the logic to leave the current game.
     // - If a game is joined and not over, make the appropriate API call to leave the game, and
     // emit a 'leaveGame' event to the server using the socket.
+  
+    if (joinedGameID && gameState) {
+      if (gameState.state.status !== 'OVER') {
+      // If the game is not over, reset the game state
+      try {
+        const updatedGame = await leaveGame(joinedGameID, user.username);
+        setGameState(updatedGame);
+      } catch (err) {
+        console.error('Error leaving game:', err);
+        setError('Error leaving the game');
+      }
+    } else {
+      setGameState(null);
+    }
+    setJoinedGameID(null);
+    setError(null);
+    socket.emit('leaveGame', joinedGameID);
 
+    } else {
+      setError('No game to leave or game already over');
+    }
     // Always navigate back to the games page
     navigate('/games');
   };
@@ -35,6 +58,16 @@ const useGamePage = () => {
       // TODO: Task 2 - Implement the logic to join the game with the provided ID,
       // making an API call, emitting a 'joinGame' event to the server using the socket,
       // and setting apporoiate state variables.
+      try {
+        const gameInstance = await joinGame(id, user.username);
+        setGameState(gameInstance);
+        setJoinedGameID(id);
+        setError(null);
+        socket.emit('joinGame', id);
+      } catch (err) {
+        console.error('Error joining game:', err);
+        setError('Error joining the game');
+      }
     };
 
     if (gameID) {
@@ -43,16 +76,32 @@ const useGamePage = () => {
 
     const handleGameUpdate = (updatedState: GameUpdatePayload) => {
       // TODO: Task 2 - Update the game state based on the received update
+      if (updatedState && updatedState.gameState) {
+        setGameState(updatedState.gameState);
+      } else {
+        console.error('Invalid game update received:', updatedState);
+        setError('Invalid game update received');
+      }
     };
 
     const handleGameError = (gameError: GameErrorPayload) => {
       // TODO: Task 2 - Display the error if this user caused the error
+      if (gameError && gameError.player === user.username) {
+        setError(gameError.error);
+      } else {
+        console.warn('Game error received from another player:', gameError);
+        setError(`Error received from player ${gameError.player}: ${gameError.error}`);
+      }
     };
 
     // TODO: Task 2 - Register socket listeners for 'gameUpdate' and 'gameError' events
+    socket.on('gameUpdate', handleGameUpdate);
+    socket.on('gameError', handleGameError);
 
     return () => {
       // TODO: Task 2 -  Unsubscribe from the socket event on cleanup
+      socket.off('gameUpdate', handleGameUpdate);
+      socket.off('gameError', handleGameError);
     };
   }, [gameID, socket, user.username]);
 
