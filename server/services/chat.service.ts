@@ -31,7 +31,6 @@ export const saveChat = async (chatPayload: CreateChatPayload): Promise<ChatResp
       messageIds.push(createdMessage._id.toString());
     }
 
-
     const chatData = {
       participants,
       messages: messageIds
@@ -42,7 +41,7 @@ export const saveChat = async (chatPayload: CreateChatPayload): Promise<ChatResp
     return savedChat.toObject();
   } catch(exception) {
     console.error('saveChat Error saving chat: ', exception);
-    return ({ error: 'Failed to save chat' });
+    return { error: 'Failed to save chat' };
   }
 };
 
@@ -99,7 +98,7 @@ export const getChat = async (chatId: string): Promise<ChatResponse> => {
       return { error: 'Chat not found'};
     }
 
-    return chat.toObject();
+    return chat;
   } catch (exception) {
     console.error('getChat Failed to get chat: ', exception);
     return ({ error: 'Failed to get chat' });
@@ -136,7 +135,7 @@ export const getChatsByParticipants = async (p: string[]): Promise<Chat[]> => {
  */
 export const addParticipantToChat = async (chatId: string, userId: string): Promise<ChatResponse> => {
   try {
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findOne({ username: userId });
     if(!user) {
       return { error: `User not found: ${userId}` };
     }

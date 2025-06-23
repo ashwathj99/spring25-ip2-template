@@ -33,7 +33,7 @@ export interface Chat {
  */
 export interface CreateChatPayload {
   // TODO: Task 3 - Define the properties of the CreateChatPayload interface
-  participants: ObjectId[];
+  participants: string[];
   messages: Message[];
 }
 

@@ -14,6 +14,7 @@ import {
 } from '../../services/chat.service';
 import { Chat, CreateChatPayload } from '../../types/chat';
 import { Message } from '../../types/message';
+import { user } from '../mockData.models';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
 
@@ -29,8 +30,48 @@ describe('Chat service', () => {
   describe('saveChat', () => {
     // TODO: Task 3 - Write tests for the saveChat function
 
+    it('should return an error if user does not exist', async () => {
+      jest.spyOn(UserModel, 'findById').mockResolvedValue(null);
+
+      const payload: CreateChatPayload = {
+        participants: [(new mongoose.Types.ObjectId).toString()],
+        messages: [
+          {
+            msg: 'Hello!',
+            msgFrom: 'testUser',
+            msgDateTime: new Date(),
+            type: 'direct',
+          },
+        ],
+      };
+
+      const result = await saveChat(payload) as { error: string};
+
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain('User not found');
+    });
+
+      it('should return an error if UserModel.findById fails', async () => {
+      jest.spyOn(UserModel, 'findById').mockRejectedValue(new Error('Database error'));
+      const payload: CreateChatPayload = {
+        participants: [(new mongoose.Types.ObjectId).toString()],
+        messages: [
+          {
+            msg: 'Hello!',
+            msgFrom: 'testUser',
+            msgDateTime: new Date(),
+            type: 'direct',
+          },
+        ],
+      };
+      const result = await saveChat(payload) as { error: string};
+      expect(result).toHaveProperty('error');
+      expect(result.error).toMatch('Failed to save chat');
+    });
 
     it('should successfully save a chat and verify its body (ignore exact IDs)', async () => {
+      jest.spyOn(UserModel, 'findById').mockResolvedValue(user);
+
       // 2) Mock message creation
       mockingoose(MessageModel).toReturn(
         {
@@ -54,6 +95,19 @@ describe('Chat service', () => {
         },
         'create',
       );
+
+      const userId1 = 'testUser';
+      const userId2 = 'testUser2';
+
+      const mockChatPayload: CreateChatPayload = {
+        messages: [{
+          msg: 'hello',
+          msgDateTime: new Date(),
+          msgFrom: userId1,
+        } as Message
+      ],
+        participants: [userId1, userId2],
+      };
 
       // 4) Call the service
       const result = await saveChat(mockChatPayload);
@@ -137,11 +191,75 @@ describe('Chat service', () => {
     });
   });
 
+  // ----------------------------------------------------------------------------
+  // 4. getChat
+  // ----------------------------------------------------------------------------
+  describe('getChat', () => {
+    beforeEach(() => {
+      mockingoose.resetAll();
+    });
+
+    it('should return get chat if chatId exists', async () => {
+      const mockChatId = (new mongoose.Types.ObjectId);
+      const mockChat: Chat = {
+        _id: mockChatId,
+        participants: ['testUser'],
+        messages: [{
+          msg: 'hello',
+          msgFrom: 'testUser',
+          msgDateTime: new Date(),
+          type: 'direct',
+          user: {
+            username: 'testUser'
+          },
+        }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Chat;
+
+      jest.spyOn(ChatModel, 'findById').mockResolvedValue(mockChat);
+
+      
+      const result = await getChat(mockChatId.toString());
+      if ('error' in result) {
+        throw new Error(`Expected a Chat, got error: ${result.error}`);
+      }
+
+      expect(result).toHaveProperty('_id');
+      expect(Array.isArray(result.participants)).toBe(true);
+      expect(Array.isArray(result.messages)).toBe(true);
+      expect(result.participants[0]?.toString()).toEqual(expect.any(String));
+      expect(result.messages[0]?.toString()).toEqual(expect.any(String));
+    });
+
+    it('should return error if chatId is not found', async() => {
+      jest.spyOn(ChatModel, 'findById').mockResolvedValue(null);
+
+      const mockChatId = (new mongoose.Types.ObjectId()).toString();
+      const result = await getChat(mockChatId) as {error: string};
+
+      expect(result).toHaveProperty('error');
+      expect(result.error).toEqual('Chat not found');
+    });
+
+    it('should return error if exception occurs when fetching from database', async() => {
+      jest.spyOn(ChatModel, 'findById').mockRejectedValue(new Error('Database error'));
+
+      const mockChatId = (new mongoose.Types.ObjectId()).toString();
+      const result = await getChat(mockChatId) as {error: string};
+
+      expect(result).toHaveProperty('error');
+      expect(result.error).toEqual('Failed to get chat');
+    });
+  });
 
   // ----------------------------------------------------------------------------
   // 5. addParticipantToChat
   // ----------------------------------------------------------------------------
   describe('addParticipantToChat', () => {
+    beforeEach(() => {
+      mockingoose.resetAll();
+    });
     // TODO: Task 3 - Write tests for the addParticipantToChat function
     it('should add a participant if user exists', async () => {
       // Mock user
@@ -165,6 +283,29 @@ describe('Chat service', () => {
         throw new Error('Expected a chat, got an error');
       }
       expect(result._id).toEqual(mockChat._id);
+    });
+    
+    it('should return error if a database error occurs when updating entity', async () => {
+      const mockChatId = (new mongoose.Types.ObjectId()).toString();
+      mockingoose(UserModel).toReturn(
+        { _id: new mongoose.Types.ObjectId(), username: 'testUser' },
+        'findOne',
+      );
+      jest.spyOn(ChatModel, 'findByIdAndUpdate').mockResolvedValue(null);
+
+      const result = await addParticipantToChat(mockChatId, user.username) as { error: string };
+      expect(result).toHaveProperty('error');
+      expect(result.error).toBe('Failed to add participant to chat');
+    });
+
+    it('should return error if a database error occurs when updating entity', async () => {
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(null);
+
+      const mockChatId = (new mongoose.Types.ObjectId()).toString();
+      const result = await addParticipantToChat(mockChatId, user.username) as { error: string };
+
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain('User not found');
     });
   });
 

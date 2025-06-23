@@ -28,6 +28,32 @@ const mockingoose = require('mockingoose');
 describe('Chat Controller', () => {
   describe('POST /chat/createChat', () => {
     // TODO: Task 3 Write additional tests for the createChat endpoint
+
+    it('should return 400 for invalid body', async () => {
+      const res = await supertest(app).post('/chat/createChat').send({});
+
+      expect(res.status).toBe(400);
+
+      expect(res.text).toBe('Invalid body');
+    });
+
+    it('should return 500 if saveChat returns error', async () => {
+      jest.spyOn(chatService, 'saveChat').mockResolvedValueOnce({ error: 'Error' });
+
+      const validBody = {
+        participants: ['a'],
+        messages: [
+          { msg: 'hi',
+            msgFrom: 'a'
+          }
+        ]
+      };
+
+      const res = await supertest(app).post('/chat/createChat').send(validBody);
+
+      expect(res.status).toBe(500);
+    });
+
     it('should create a new chat successfully', async () => {
       const validChatPayload = {
         participants: ['user1', 'user2'],
@@ -93,6 +119,23 @@ describe('Chat Controller', () => {
 
   describe('POST /chat/:chatId/addMessage', () => {
     // TODO: Task 3 Write additional tests for the addMessage endpoint
+    it('should return 400 for invalid body', async () => {
+      const res = await supertest(app).post('/chat/1/addMessage').send({});
+
+      expect(res.status).toBe(400);
+
+      expect(res.text).toBe('Invalid body');
+    });
+
+    it('should return 500 if createMessage returns error', async () => {
+      jest.spyOn(chatService, 'createMessage').mockResolvedValueOnce({ error: 'Error' });
+
+      const validBody = { msg: 'hi', msgFrom: 'a' };
+      const res = await supertest(app).post('/chat/1/addMessage').send(validBody);
+
+      expect(res.status).toBe(500);
+    });
+
     it('should add a message to chat successfully', async () => {
       const chatId = new mongoose.Types.ObjectId();
       const messagePayload: Message = {
@@ -156,6 +199,19 @@ describe('Chat Controller', () => {
 
   describe('GET /chat/:chatId', () => {
     // TODO: Task 3 Write additional tests for the getChat endpoint
+    it('should return 404 if chatId is missing', async () => {
+      const res = await supertest(app).get('/chat/');
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 500 if getChat returns error', async () => {
+      jest.spyOn(chatService, 'getChat').mockResolvedValueOnce({ error: 'Error' });
+
+      const res = await supertest(app).get('/chat/1');
+
+      expect(res.status).toBe(500);
+    });
+
     it('should retrieve a chat by ID', async () => {
       // 1) Prepare a valid chatId param
       const chatId = new mongoose.Types.ObjectId().toString();
@@ -215,6 +271,26 @@ describe('Chat Controller', () => {
 
   describe('POST /chat/:chatId/addParticipant', () => {
     // TODO: Task 3 Write additional tests for the addParticipant endpoint
+    it('should return 400 for invalid body', async () => {
+      const res = await supertest(app).post('/chat/1/addParticipant').send({});
+
+      expect(res.status).toBe(400);
+
+      expect(res.text).toBe('Invalid body');
+    });
+
+    it('should return 500 if addParticipantToChat returns error', async () => {
+      jest.spyOn(chatService, 'addParticipantToChat').mockResolvedValueOnce(
+        { error: 'Failed to add participant to chat room' }
+      );
+
+      const validBody = { userId: 'u1' };
+      const res = await supertest(app).post('/chat/1/addParticipant').send(validBody);
+
+      expect(res.status).toBe(500);
+      expect(res.text).toContain('Failed to add participant to chat room');
+    });
+
     it('should add a participant to an existing chat', async () => {
       const chatId = new mongoose.Types.ObjectId().toString();
       const userId = new mongoose.Types.ObjectId().toString();
