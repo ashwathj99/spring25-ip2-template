@@ -20,6 +20,11 @@ export interface MessageInChat extends Message {
  */
 export interface Chat {
   // TODO: Task 3 - Define the properties of the Chat interface
+  _id?: ObjectId;
+  participants: string[];
+  messages: MessageInChat[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 /**
@@ -28,6 +33,8 @@ export interface Chat {
  */
 export interface CreateChatPayload {
   // TODO: Task 3 - Define the properties of the CreateChatPayload interface
+  participants: ObjectId[];
+  messages: Message[];
 }
 
 /**
@@ -35,6 +42,7 @@ export interface CreateChatPayload {
  */
 export interface CreateChatRequest extends Request {
   // TODO: Task 3 - Define the properties of the CreateChatRequest interface
+  body: CreateChatPayload;
 }
 
 /**
@@ -43,6 +51,10 @@ export interface CreateChatRequest extends Request {
  */
 export interface AddMessagePayload {
   // TODO: Task 3 - Define the properties of the AddMessagePayload interface
+  msg: string;
+  msgFrom: string;
+  msgDateTime?: Date;
+  // REVIEW: type of message?
 }
 
 /**
@@ -50,6 +62,9 @@ export interface AddMessagePayload {
  */
 export interface ChatIdRequest extends Request {
   // TODO: Task 3 - Define the properties of the ChatIdRequest interface
+  params: {
+    chatId: string;
+  };
 }
 
 /**
@@ -57,6 +72,7 @@ export interface ChatIdRequest extends Request {
  */
 export interface AddMessageRequestToChat extends ChatIdRequest {
   // TODO: Task 3 - Define the properties of the AddMessageRequestToChat interface
+  body: AddMessagePayload;
 }
 
 /**
@@ -64,6 +80,7 @@ export interface AddMessageRequestToChat extends ChatIdRequest {
  */
 export interface AddParticipantPayload {
   // TODO: Task 3 - Define the properties of the AddParticipantPayload interface
+  userId: string;
 }
 
 /**
@@ -71,6 +88,7 @@ export interface AddParticipantPayload {
  */
 export interface AddParticipantRequest extends ChatIdRequest {
   // TODO: Task 3 - Define the properties of the AddParticipantRequest interface
+  body: AddParticipantPayload;
 }
 
 /**
@@ -80,6 +98,9 @@ export interface AddParticipantRequest extends ChatIdRequest {
  */
 export interface GetChatByParticipantsRequest extends Request {
   // TODO: Task 3 - Define the properties of the ChatIdRequest interface
+  params: {
+    username: string; // The username of the participant to look up
+  };
 }
 
 /**
