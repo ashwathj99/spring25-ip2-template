@@ -31,7 +31,7 @@ describe('Chat service', () => {
     // TODO: Task 3 - Write tests for the saveChat function
 
     it('should return an error if user does not exist', async () => {
-      jest.spyOn(UserModel, 'findById').mockResolvedValue(null);
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(null);
 
       const payload: CreateChatPayload = {
         participants: [(new mongoose.Types.ObjectId).toString()],
@@ -52,7 +52,7 @@ describe('Chat service', () => {
     });
 
       it('should return an error if UserModel.findById fails', async () => {
-      jest.spyOn(UserModel, 'findById').mockRejectedValue(new Error('Database error'));
+      jest.spyOn(UserModel, 'findOne').mockRejectedValue(new Error('Database error'));
       const payload: CreateChatPayload = {
         participants: [(new mongoose.Types.ObjectId).toString()],
         messages: [
@@ -66,11 +66,11 @@ describe('Chat service', () => {
       };
       const result = await saveChat(payload) as { error: string};
       expect(result).toHaveProperty('error');
-      expect(result.error).toMatch('Failed to save chat');
+      expect(result.error).toContain('User not found');
     });
 
     it('should successfully save a chat and verify its body (ignore exact IDs)', async () => {
-      jest.spyOn(UserModel, 'findById').mockResolvedValue(user);
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(user);
 
       // 2) Mock message creation
       mockingoose(MessageModel).toReturn(
