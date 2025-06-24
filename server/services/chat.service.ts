@@ -16,23 +16,25 @@ export const saveChat = async (chatPayload: CreateChatPayload): Promise<ChatResp
     const messageIds: string[] = [];
 
     for(const participantId of participants) {
-      const user = await UserModel.findById(participantId);
+      const user = await UserModel.findOne({ username: participantId });
       if (!user) {
         return { error: `User not found: ${participantId}` };
       }
     }
 
-    for (const message of messages) {
-      const messageInDB = {
-        ...message,
-        msgDateTime: message.msgDateTime || new Date()
-      };
-      const createdMessage = await MessageModel.create(messageInDB);
-      messageIds.push(createdMessage._id.toString());
+    if (messages && messages.length > 0) {
+      for (const message of messages) {
+        const messageInDB = {
+          ...message,
+          msgDateTime: message.msgDateTime || new Date()
+        };
+        const createdMessage = await MessageModel.create(messageInDB);
+        messageIds.push(createdMessage._id.toString());
+      }
     }
 
     const chatData = {
-      participants,
+      participants: participants,
       messages: messageIds
     };
 
@@ -113,7 +115,7 @@ export const getChat = async (chatId: string): Promise<ChatResponse> => {
  */
 export const getChatsByParticipants = async (p: string[]): Promise<Chat[]> => {
   try {
-    const chats = await ChatModel.find({ participants: { $all: p }});
+    const chats = await ChatModel.find({ participants: { $in: p }});
     
     if (!chats) {
       return [];

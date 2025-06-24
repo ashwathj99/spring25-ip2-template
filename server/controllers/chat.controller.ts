@@ -35,7 +35,7 @@ const chatController = (socket: FakeSOSocket) => {
   const isCreateChatRequestValid = (req: CreateChatRequest): boolean => {
     const { participants, messages } = req.body;
 
-    if (!participants || participants.length == 0 || !messages || messages.length == 0) {
+    if (!participants || !Array.isArray(participants) || participants.length == 0 || !Array.isArray(messages)) {
       return false;
     }
     return true;
@@ -96,10 +96,12 @@ const chatController = (socket: FakeSOSocket) => {
       if ('error' in enrichedResult) {
         throw new Error(enrichedResult.error);
       }
-
-      socket.emit('chatUpdate', {
+      
+      result.participants.forEach( (participant) => {
+        socket.to(participant).emit('chatUpdate', {
         chat: enrichedResult,
         type: 'created',
+        });
       });
       res.status(200).send(enrichedResult);
     } catch (exception) {
