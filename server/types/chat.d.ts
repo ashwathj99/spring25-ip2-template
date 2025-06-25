@@ -54,7 +54,6 @@ export interface AddMessagePayload {
   msg: string;
   msgFrom: string;
   msgDateTime?: Date;
-  // REVIEW: type of message?
 }
 
 /**

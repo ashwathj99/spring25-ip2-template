@@ -19,18 +19,15 @@ const useNimGamePage = (gameState: GameInstance) => {
   // TODO: Task 2 - Define the state variable to store the current move (`move`)
   const [move, setMove] = useState<number>(1);
 
-  const isValidInput = (num: number): boolean => {
-    return num >= 1 && num <= 3;
-  };
+  const isValidInput = (num: number): boolean => num >= 1 && num <= 3;
 
-  const isValidMove = (num: number): boolean => {
-    return isValidInput(num) && num <= gameState.state.remainingObjects;
-  };
+  const isValidMove = (num: number): boolean =>
+    isValidInput(num) && num <= gameState.state.remainingObjects;
 
   const handleMakeMove = async () => {
     // TODO: Task 2 - Emit a socket event to make a move in the Nim game
     if (!isValidMove(move)) {
-      console.error(`Invalid move. Only ${gameState.state.remainingObjects} objects remaining!`)
+      console.error(`Invalid move. Only ${gameState.state.remainingObjects} objects remaining!`);
       return;
     }
     const moveData: GameMove = {
@@ -51,9 +48,9 @@ const useNimGamePage = (gameState: GameInstance) => {
     // TODO: Task 2 - Update the move state based on the user input.
     // The move should be a number between 1 and 3, and apply this validation before
     // updating the state.
-    const value = e.target.value;
+    const { value } = e.target;
     const move = Number(value);
-    if (!value || isNaN(move) || !isValidMove(move)) {
+    if (!value || Number.isNaN(move) || !isValidMove(move)) {
       console.error('Invalid input! Please enter a number between 1 and 3.');
       return;
     }

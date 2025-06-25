@@ -276,7 +276,6 @@ const chatController = (socket: FakeSOSocket) => {
         res.status(500).send(`Failed to add participant to chat room ${result.error}`);
         return;
       }
-      // REVIEW: send event?
       res.status(200).send(result);
     } catch (exception) {
       console.error('addParticipantToChatRoute Failed to add participant to chat room', exception);

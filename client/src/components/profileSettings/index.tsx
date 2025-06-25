@@ -75,7 +75,7 @@ const ProfileSettings: React.FC = () => {
 
             {/* TODO: Task 1 - Conditionally render the below `div` such that it's only displayed when currently
             editing the biography, and the user has the permission to make edits to the profile. */}
-            { editBioMode && canEditProfile && (
+            {editBioMode && canEditProfile && (
               <div style={{ margin: '1rem 0' }}>
                 <input
                   className='input-text'
@@ -127,34 +127,37 @@ const ProfileSettings: React.FC = () => {
                   is entered. Make sure that the password visibility is correctly toggled.
                 Use the 'input-text' class for styling.
                 */}
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  className='input-text'
-                  value={confirmNewPassword}
-                  onChange={e => setConfirmNewPassword(e.target.value)}
-                  placeholder='Confirm Password'
-                />
-                <button className='toggle-password-button' onClick={togglePasswordVisibility}>
-                  {showPassword ? 'Hide Passwords' : 'Show Passwords'}
-                </button>
-                <button className='login-button' onClick={handleResetPassword}>
-                  Reset
-                </button>
-              </>
-            )}
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className='input-text'
+                    value={confirmNewPassword}
+                    onChange={e => setConfirmNewPassword(e.target.value)}
+                    placeholder='Confirm Password'
+                  />
+                  <button className='toggle-password-button' onClick={togglePasswordVisibility}>
+                    {showPassword ? 'Hide Passwords' : 'Show Passwords'}
+                  </button>
+                  <button className='login-button' onClick={handleResetPassword}>
+                    Reset
+                  </button>
+                </>
+              )
+            }
 
             {/* ---- Danger Zone (Delete User) ---- */}
             {
               /* TODO: Task 1 - Conditionally render the component such that it's only displayed 
               if the current user has the appropriate permissions to edit the profile. */
-              canEditProfile && userData && 
-              userData.username !== 'admin' && // Prevent deletion of admin user
-              <>
-                <h4>Danger Zone</h4>
-                <button className='delete-button' onClick={handleDeleteUser}>
-                  Delete This User
-                </button>
-              </>
+              canEditProfile &&
+                userData &&
+                userData.username !== 'admin' && ( // Prevent deletion of admin user
+                  <>
+                    <h4>Danger Zone</h4>
+                    <button className='delete-button' onClick={handleDeleteUser}>
+                      Delete This User
+                    </button>
+                  </>
+                )
             }
           </>
         ) : (

@@ -41,7 +41,7 @@ const UsersListPage = (props: UserListPageProps) => {
       <UsersListHeader userCount={userList.length} setUserFilter={setUserFilter} />
       <div id='users_list' className='users_list'>
         {userList.length > 0 ? (
-          userList.map((user) => (
+          userList.map(user => (
             <UserCardView
               key={user.username}
               user={user}

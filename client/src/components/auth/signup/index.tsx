@@ -34,7 +34,7 @@ const Signup = () => {
           type='text'
           className='input-text'
           value={username}
-          onChange={(e) => handleInputChange(e, 'username')}
+          onChange={e => handleInputChange(e, 'username')}
           placeholder='Username'
         />
         <h4>Please enter your password.</h4>
@@ -47,7 +47,7 @@ const Signup = () => {
           type={showPassword ? 'text' : 'password'}
           className='input-text'
           value={password}
-          onChange={(e) => handleInputChange(e, 'password')}
+          onChange={e => handleInputChange(e, 'password')}
           placeholder='Password'
         />
         {/* TODO: Task 1 - Add an input field for the password confirmation input.
@@ -59,7 +59,7 @@ const Signup = () => {
           type={showPassword ? 'text' : 'password'}
           className='input-text'
           value={passwordConfirmation}
-          onChange={(e) => handleInputChange(e, 'confirmPassword')}
+          onChange={e => handleInputChange(e, 'confirmPassword')}
           placeholder='Confirm Password'
         />
         <div className='show-password'>

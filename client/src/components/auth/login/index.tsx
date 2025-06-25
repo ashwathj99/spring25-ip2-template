@@ -33,7 +33,7 @@ const Login = () => {
           type='text'
           className='input-text'
           value={username}
-          onChange={(e) => handleInputChange(e, 'username')}
+          onChange={e => handleInputChange(e, 'username')}
           placeholder='Username'
         />
         <h4>Please enter your password.</h4>
@@ -46,7 +46,7 @@ const Login = () => {
           type={showPassword ? 'text' : 'password'}
           className='input-text'
           value={password}
-          onChange={(e) => handleInputChange(e, 'password')}
+          onChange={e => handleInputChange(e, 'password')}
           placeholder='Password'
         />
         <div className='show-password'>
@@ -54,7 +54,7 @@ const Login = () => {
         The field should correctly update the password visibility when checked/unchecked.
         Use the id 'showPasswordToggle'. No styling class is required here.
         */}
-        <input
+          <input
             type='checkbox'
             id='showPasswordToggle'
             checked={showPassword}

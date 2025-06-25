@@ -80,11 +80,9 @@ const useDirectMessage = () => {
     try {
       const participants = [user.username, chatToCreate];
       const newChat = await createChat(participants);
-      
+
       if (newChat) {
-        
-        setChats((prevChats) => {
-          return [...prevChats, newChat]});
+        setChats(prevChats => [...prevChats, newChat]);
         setSelectedChat(newChat);
         handleJoinChat(newChat._id);
         setShowCreatePanel(false);
@@ -116,18 +114,17 @@ const useDirectMessage = () => {
       // NOTE: For new messages, the user will only receive the update if they are
       // currently subscribed to the chat room.
 
-      let participants = chatUpdate.chat.participants;
+      let { participants } = chatUpdate.chat;
       if (participants.length > 0) {
         participants = participants.flat();
       }
-      switch(chatUpdate.type) {
+      switch (chatUpdate.type) {
         case 'created':
           if (participants.includes(user.username)) {
-            setChats( (prevChats) => {
+            setChats(prevChats => {
               const oldChatExists = prevChats.some(chat => chat._id === chatUpdate.chat._id);
-              if(!oldChatExists) {
-                const retVal=[...prevChats, chatUpdate.chat]
-                return retVal;
+              if (!oldChatExists) {
+                return [...prevChats, chatUpdate.chat];
               }
               return prevChats;
             });
@@ -138,11 +135,13 @@ const useDirectMessage = () => {
           if (selectedChat && selectedChat._id === chatUpdate.chat._id) {
             setSelectedChat(chatUpdate.chat);
           }
-          setChats( (prevChats) => prevChats.map(chat => chat._id === chatUpdate.chat._id ? chatUpdate.chat : chat ));
+          setChats(prevChats =>
+            prevChats.map(chat => (chat._id === chatUpdate.chat._id ? chatUpdate.chat : chat)),
+          );
           break;
 
         default:
-          throw new Error(`Invalid chat update type: ${chatUpdate.type}`)
+          throw new Error(`Invalid chat update type: ${chatUpdate.type}`);
       }
     };
 
@@ -150,7 +149,6 @@ const useDirectMessage = () => {
 
     // TODO: Task 3 - Register the 'chatUpdate' event listener
     socket.on('chatUpdate', handleChatUpdate);
-
 
     return () => {
       // TODO: Task 3 - Unsubscribe from the socket event

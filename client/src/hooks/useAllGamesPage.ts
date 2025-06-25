@@ -52,7 +52,7 @@ const useAllGamesPage = () => {
 
   const handleToggleModal = () => {
     // TODO: Task 2 - Toggle the visibility of the game creation modal
-    setIsModalOpen((prev) => !prev);
+    setIsModalOpen(prev => !prev);
   };
 
   const handleSelectGameType = (gameType: GameType) => {

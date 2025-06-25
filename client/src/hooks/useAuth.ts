@@ -34,7 +34,7 @@ const useAuth = (authType: 'login' | 'signup') => {
    */
   const togglePasswordVisibility = () => {
     // TODO - Task 1: Toggle password visibility
-    setShowPassword((prev) => !prev);
+    setShowPassword(prev => !prev);
   };
 
   /**
@@ -48,7 +48,7 @@ const useAuth = (authType: 'login' | 'signup') => {
     field: 'username' | 'password' | 'confirmPassword',
   ) => {
     // TODO - Task 1: Handle input changes for the fields
-    const value = e.target.value;
+    const { value } = e.target;
     switch (field) {
       case 'username':
         setUsername(value);

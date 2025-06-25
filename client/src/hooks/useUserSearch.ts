@@ -14,7 +14,6 @@ const useUserSearch = (setUserFilter: (search: string) => void) => {
   // TODO: Task 1 - Define the state(s) required to manage the input value.
   const [val, setVal] = useState<string>('');
 
-
   /**
    * Function to handle changes in the input field.
    *
