@@ -103,7 +103,7 @@ const chatController = (socket: FakeSOSocket) => {
       }
 
       result.participants.forEach(participant => {
-        socket.to(participant).emit('chatUpdate', {
+        socket.emit('chatUpdate', {
           chat: enrichedResult,
           type: 'created',
         });
