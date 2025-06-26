@@ -35,7 +35,12 @@ const chatController = (socket: FakeSOSocket) => {
   const isCreateChatRequestValid = (req: CreateChatRequest): boolean => {
     const { participants, messages } = req.body;
 
-    if (!participants || !Array.isArray(participants) || participants.length == 0 || !Array.isArray(messages)) {
+    if (
+      !participants ||
+      !Array.isArray(participants) ||
+      participants.length == 0 ||
+      !Array.isArray(messages)
+    ) {
       return false;
     }
     return true;
@@ -54,7 +59,7 @@ const chatController = (socket: FakeSOSocket) => {
       return false;
     }
     return true;
-  }
+  };
 
   /**
    * Validates that the request body contains all required fields for a participant.
@@ -69,7 +74,7 @@ const chatController = (socket: FakeSOSocket) => {
       return false;
     }
     return true;
-  }
+  };
 
   /**
    * Creates a new chat with the given participants (and optional initial messages).
@@ -84,7 +89,7 @@ const chatController = (socket: FakeSOSocket) => {
     if (!isCreateChatRequestValid(req)) {
       res.status(400).send('Invalid body');
       return;
-    };
+    }
 
     try {
       const result = await saveChat(req.body);
@@ -96,11 +101,11 @@ const chatController = (socket: FakeSOSocket) => {
       if ('error' in enrichedResult) {
         throw new Error(enrichedResult.error);
       }
-      
-      result.participants.forEach( (participant) => {
+
+      result.participants.forEach(participant => {
         socket.to(participant).emit('chatUpdate', {
-        chat: enrichedResult,
-        type: 'created',
+          chat: enrichedResult,
+          type: 'created',
         });
       });
       res.status(200).send(enrichedResult);
@@ -133,14 +138,14 @@ const chatController = (socket: FakeSOSocket) => {
     const message: Message = {
       ...req.body,
       type: 'direct',
-      msgDateTime: req.body.msgDateTime || new Date()
+      msgDateTime: req.body.msgDateTime || new Date(),
     };
 
     const { chatId } = req.params;
 
     try {
       const messageResult = await createMessage(message);
-      if('error' in messageResult) {
+      if ('error' in messageResult) {
         throw new Error(messageResult.error);
       }
 
@@ -148,10 +153,7 @@ const chatController = (socket: FakeSOSocket) => {
         throw new Error('Failed to add message to chat');
       }
 
-      const chatResult = await addMessageToChat(
-        chatId,
-        messageResult._id.toString()
-      )
+      const chatResult = await addMessageToChat(chatId, messageResult._id.toString());
 
       if ('error' in chatResult) {
         throw new Error(chatResult.error);
@@ -161,17 +163,14 @@ const chatController = (socket: FakeSOSocket) => {
         throw new Error('Invalid chat found');
       }
 
-      const enrichedChat = await populateDocument(
-        chatResult._id.toString(),
-        'chat'
-      );
+      const enrichedChat = await populateDocument(chatResult._id.toString(), 'chat');
 
       socket.to(chatId).emit('chatUpdate', {
         chat: enrichedChat,
         type: 'newMessage',
       });
       res.status(200).send(enrichedChat);
-    } catch(exception) {
+    } catch (exception) {
       console.error('addMessageToChatRoute Error when adding message to chat: ', exception);
       res.status(500).send(`Error when adding message to chat: ${exception}`);
     }
@@ -194,10 +193,7 @@ const chatController = (socket: FakeSOSocket) => {
         throw new Error(`Failed to get chat: ${result.error}`);
       }
 
-      const enrichedResult = await populateDocument(
-        result._id?.toString(),
-        'chat'
-      );
+      const enrichedResult = await populateDocument(result._id?.toString(), 'chat');
       if ('error' in enrichedResult) {
         throw new Error(enrichedResult.error);
       }
@@ -245,7 +241,7 @@ const chatController = (socket: FakeSOSocket) => {
       res.status(200).send(enrichedChats);
     } catch (exception) {
       console.error('getChatsByUserRoute Failed to get chat by user', exception);
-      const errorMessage = (exception instanceof Error) ? exception.message : `${exception}`;
+      const errorMessage = exception instanceof Error ? exception.message : `${exception}`;
       res.status(500).send(`Error retrieving chat: ${errorMessage}`);
     }
   };

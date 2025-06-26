@@ -106,9 +106,10 @@ describe('getUsersList', () => {
     const retrievedUsers = (await getUsersList()) as { error: string };
 
     expect('error' in retrievedUsers).toBe(true);
-    expect(retrievedUsers.error).toEqual('Error occurred when fetching users: Error: Error retrieving users');
+    expect(retrievedUsers.error).toEqual(
+      'Error occurred when fetching users: Error: Error retrieving users',
+    );
   });
-
 });
 
 describe('loginUser', () => {

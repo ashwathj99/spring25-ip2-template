@@ -42,11 +42,7 @@ describe('Chat Controller', () => {
 
       const validBody = {
         participants: ['a'],
-        messages: [
-          { msg: 'hi',
-            msgFrom: 'a'
-          }
-        ]
+        messages: [{ msg: 'hi', msgFrom: 'a' }],
       };
 
       const res = await supertest(app).post('/chat/createChat').send(validBody);
@@ -114,7 +110,6 @@ describe('Chat Controller', () => {
       expect(saveChatSpy).toHaveBeenCalledWith(serializedPayload);
       expect(populateDocumentSpy).toHaveBeenCalledWith(chatResponse._id?.toString(), 'chat');
     });
-
   });
 
   describe('POST /chat/:chatId/addMessage', () => {
@@ -194,7 +189,6 @@ describe('Chat Controller', () => {
       expect(addMessageSpy).toHaveBeenCalledWith(chatId.toString(), messageResponse._id.toString());
       expect(populateDocumentSpy).toHaveBeenCalledWith(chatResponse._id.toString(), 'chat');
     });
-
   });
 
   describe('GET /chat/:chatId', () => {
@@ -280,9 +274,9 @@ describe('Chat Controller', () => {
     });
 
     it('should return 500 if addParticipantToChat returns error', async () => {
-      jest.spyOn(chatService, 'addParticipantToChat').mockResolvedValueOnce(
-        { error: 'Failed to add participant to chat room' }
-      );
+      jest
+        .spyOn(chatService, 'addParticipantToChat')
+        .mockResolvedValueOnce({ error: 'Failed to add participant to chat room' });
 
       const validBody = { userId: 'u1' };
       const res = await supertest(app).post('/chat/1/addParticipant').send(validBody);
@@ -319,7 +313,6 @@ describe('Chat Controller', () => {
 
       expect(addParticipantSpy).toHaveBeenCalledWith(chatId, userId);
     });
-
   });
 
   describe('POST /chat/getChatsByUser/:username', () => {
